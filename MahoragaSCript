@@ -1,4 +1,36 @@
-= character:WaitForChild("Humanoid")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Animation ID to listen for
+local animationId = 17120750680
+local animationTriggered = false
+
+-- Reference to the chat system
+local chatrem = game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest
+
+-- Function to send a chat message
+local function sendMessage()
+    chatrem:FireServer('With this treasure, I summon Eight-Handled Sword Divergent Sila Divine General Mahoraga', "All")
+    print("Sent Message")
+end
+
+-- Function to handle animation playing
+local function onAnimationPlayed(animationTrack)
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId and not animationTriggered then
+        animationTriggered = true  -- Ensure the message is sent only once per animation trigger
+        sendMessage()
+    end
+end
+
+-- Connect to the Humanoid's AnimationPlayed event
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+
+-- To handle the case when the character respawns
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
     animationTriggered = false  -- Reset the trigger flag
 
     humanoid.AnimationPlayed:Connect(onAnimationPlayed)  -- Reconnect the event
