@@ -1,0 +1,1227 @@
+= character:WaitForChild("Humanoid")
+    animationTriggered = false  -- Reset the trigger flag
+
+    humanoid.AnimationPlayed:Connect(onAnimationPlayed)  -- Reconnect the event
+end)
+
+
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local humanoid = player.Character and player.Character:WaitForChild("Humanoid")
+
+-- Animation IDs
+local triggerAnimationId = 7815618175  -- Animation to be triggered
+local replaceAnimationId = 15237948811  -- Animation to play instead
+
+-- Create Animation objects
+local triggerAnimation = Instance.new("Animation")
+triggerAnimation.AnimationId = "rbxassetid://" .. tostring(triggerAnimationId)
+
+local replaceAnimation = Instance.new("Animation")
+replaceAnimation.AnimationId = "rbxassetid://" .. tostring(replaceAnimationId)
+
+-- Create AnimationTracks for the humanoid
+local triggerTrack = humanoid:LoadAnimation(triggerAnimation)
+local replaceTrack = humanoid:LoadAnimation(replaceAnimation)
+
+-- Function to handle playing and stopping animations based on movement
+local function onAnimationPlayed(animationTrack)
+    if animationTrack == triggerTrack then
+        -- Stop the trigger animation
+        triggerTrack:Stop()
+    end
+end
+
+-- Function to play the replacement animation when moving forward
+local function onUpdate()
+    if humanoid.MoveDirection.Magnitude > 0 then
+        -- Check if the player is moving forward
+        local direction = humanoid.MoveDirection.Unit
+
+        -- Check if the player is facing forward (Z axis)
+        if direction.Z > 0 then
+            -- Play the replacement animation if not already playing
+            if not replaceTrack.IsPlaying then
+                replaceTrack:Play()
+            end
+        else
+            -- Stop the replacement animation if the player is not moving forward
+            if replaceTrack.IsPlaying then
+                replaceTrack:Stop()
+            end
+        end
+    else
+        -- Stop the replacement animation if the player is not moving
+        if replaceTrack.IsPlaying then
+            replaceTrack:Stop()
+        end
+    end
+end
+
+-- Connect to the AnimationPlayed event
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+
+-- Ensure the script can react to the character being added
+player.CharacterAdded:Connect(function(character)
+    humanoid = character:WaitForChild("Humanoid")
+    
+    -- Reload the animation tracks when a new character is added
+    triggerTrack = humanoid:LoadAnimation(triggerAnimation)
+    replaceTrack = humanoid:LoadAnimation(replaceAnimation)
+
+    -- Reconnect the AnimationPlayed event
+    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+end)
+
+-- Run the onUpdate function every frame
+game:GetService("RunService").Heartbeat:Connect(onUpdate)
+
+
+
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+local humanoid = player.Character and player.Character:WaitForChild("Humanoid")
+
+-- Animation ID
+local animationId = 13736115009
+
+-- Create Animation object
+local animation = Instance.new("Animation")
+animation.AnimationId = "rbxassetid://" .. tostring(animationId)
+
+-- Load the animation into the humanoid
+local animationTrack = humanoid:LoadAnimation(animation)
+
+-- Track whether the animation is playing or not
+local isPlaying = false
+
+-- Function to toggle the animation on and off
+local function toggleAnimation()
+    if isPlaying then
+        -- Stop the animation if it's already playing
+        animationTrack:Stop()
+        isPlaying = false
+    else
+        -- Play the animation if it's not playing
+        animationTrack:Play()
+        isPlaying = true
+    end
+end
+
+-- Detect when the X key is pressed
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    -- Make sure the input is the "X" key and the user isn't typing in a chat or textbox
+    if input.KeyCode == Enum.KeyCode.X and not gameProcessed then
+        toggleAnimation()
+    end
+end)
+
+-- If the character changes (respawn, etc.), update the humanoid reference
+player.CharacterAdded:Connect(function(character)
+    humanoid = character:WaitForChild("Humanoid")
+    animationTrack = humanoid:LoadAnimation(animation)
+end)
+
+
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local humanoid = player.Character and player.Character:WaitForChild("Humanoid")
+
+-- Animation IDs
+local triggerAnimationId = 7815618175  -- Animation to be triggered
+local replaceAnimationId = 15237948811  -- Animation to play instead
+
+-- Create Animation objects
+local triggerAnimation = Instance.new("Animation")
+triggerAnimation.AnimationId = "rbxassetid://" .. tostring(triggerAnimationId)
+
+local replaceAnimation = Instance.new("Animation")
+replaceAnimation.AnimationId = "rbxassetid://" .. tostring(replaceAnimationId)
+
+-- Create AnimationTracks for the humanoid
+local triggerTrack = humanoid:LoadAnimation(triggerAnimation)
+local replaceTrack = humanoid:LoadAnimation(replaceAnimation)
+
+-- Function to handle playing and stopping animations
+local function onAnimationPlayed(animationTrack)
+    if animationTrack == triggerTrack then
+        -- Stop the trigger animation
+        triggerTrack:Stop()
+
+        -- Play the replacement animation
+        replaceTrack:Play()
+    end
+end
+
+-- Connect to the AnimationPlayed event
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+
+-- Ensure the script can react to the character being added
+player.CharacterAdded:Connect(function(character)
+    humanoid = character:WaitForChild("Humanoid")
+    
+    -- Reload the animation tracks when a new character is added
+    triggerTrack = humanoid:LoadAnimation(triggerAnimation)
+    replaceTrack = humanoid:LoadAnimation(replaceAnimation)
+
+    -- Reconnect the AnimationPlayed event
+    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+end)
+
+
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Store original avatar state
+local originalAccessories = {}
+local originalBodyColors = nil
+local avatarChanged = false  -- Flag to check if the avatar has been changed
+
+-- Accessory IDs
+local HeadAccessories = {
+    15483986158,  -- Example accessory IDs for the head
+    15483978392,
+    15375507153,
+}
+
+local TorsoAccessories = {
+    15483986158,  -- Example accessory IDs for the torso
+    15765107116,
+}
+
+-- Function to weld parts
+local function weldParts(part0, part1, c0, c1)
+    local weld = Instance.new("Weld")
+    weld.Part0 = part0
+    weld.Part1 = part1
+    weld.C0 = c0
+    weld.C1 = c1
+    weld.Parent = part0
+    return weld
+end
+
+-- Function to find an attachment by name
+local function findAttachment(rootPart, name)
+    for _, descendant in pairs(rootPart:GetDescendants()) do
+        if descendant:IsA("Attachment") and descendant.Name == name then
+            return descendant
+        end
+    end
+end
+
+-- Function to add an accessory to the character
+local function addAccessoryToCharacter(accessoryId, parentPart)
+    local accessory = game:GetObjects("rbxassetid://" .. tostring(accessoryId))[1]
+    local character = player.Character
+
+    -- Parent the accessory to Workspace first
+    accessory.Parent = game.Workspace
+
+    local handle = accessory:FindFirstChild("Handle")
+    if handle then
+        handle.CanCollide = false
+        local attachment = handle:FindFirstChildOfClass("Attachment")
+        if attachment then
+            local parentAttachment = findAttachment(parentPart, attachment.Name)
+            if parentAttachment then
+                weldParts(parentPart, handle, parentAttachment.CFrame, attachment.CFrame)
+            end
+        else
+            local parent = character:FindFirstChild(parentPart.Name)
+            if parent then
+                local attachmentPoint = accessory.AttachmentPoint
+                weldParts(parent, handle, CFrame.new(0, 0.5, 0), attachmentPoint.CFrame)
+            end
+        end
+    end
+
+    -- Parent the accessory to the character
+    accessory.Parent = character
+end
+
+-- Function to remove existing accessories
+local function removeExistingAccessories(character)
+    for _, accessory in ipairs(character:GetChildren()) do
+        if accessory:IsA("Accessory") then
+            accessory:Destroy()  -- Remove existing accessories
+        end
+    end
+end
+
+-- Function to set the skin color to white
+local function setSkinColor(character)
+    local bodyColors = character:FindFirstChildOfClass("BodyColors")
+    if bodyColors then
+        bodyColors.HeadColor = BrickColor.White()
+        bodyColors.TorsoColor = BrickColor.White()
+        bodyColors.LeftArmColor = BrickColor.White()
+        bodyColors.RightArmColor = BrickColor.White()
+        bodyColors.LeftLegColor = BrickColor.White()
+        bodyColors.RightLegColor = BrickColor.White()
+    end
+end
+
+-- Function to store the original avatar
+local function storeOriginalAvatar(character)
+    originalAccessories = {}
+    local bodyColors = character:FindFirstChildOfClass("BodyColors")
+    originalBodyColors = bodyColors and bodyColors:Clone()
+
+    for _, part in ipairs(character:GetChildren()) do
+        if part:IsA("Accessory") then
+            table.insert(originalAccessories, part:Clone())  -- Store a clone of the original accessories
+        end
+    end
+end
+
+-- Function to restore the original avatar
+local function restoreOriginalAvatar(character)
+    -- Restore accessories
+    for _, accessory in ipairs(originalAccessories) do
+        accessory.Parent = character  -- Parent the original accessories back to the character
+    end
+
+    -- Restore body colors if they exist
+    if originalBodyColors then
+        local bodyColors = character:FindFirstChildOfClass("BodyColors")
+        if bodyColors then
+            bodyColors:Destroy()  -- Remove the current body colors
+        end
+        originalBodyColors.Parent = character  -- Parent the original body colors back to the character
+    end
+end
+
+-- Function to handle character respawn
+local function onCharacterAdded(character)
+    if avatarChanged then  -- If avatar has been changed, restore original on respawn
+        restoreOriginalAvatar(character)  -- Restore the original avatar on respawn
+        avatarChanged = false  -- Reset the flag to allow for avatar change on next death
+    else  -- Change avatar on first death
+        removeExistingAccessories(character)  -- Remove existing accessories
+        setSkinColor(character)  -- Set skin color to white
+        storeOriginalAvatar(character)  -- Store the original avatar
+
+        for _, accessoryId in ipairs(HeadAccessories) do
+            addAccessoryToCharacter(accessoryId, character.Head)
+        end
+
+        for _, accessoryId in ipairs(TorsoAccessories) do
+            addAccessoryToCharacter(accessoryId, character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso"))
+        end
+
+        avatarChanged = true  -- Set flag to true after changing avatar
+    end
+end
+
+-- Function to handle player death
+local function onCharacterDied()
+    local character = player.Character
+    if character then
+        -- Remove all accessories when the character dies
+        removeExistingAccessories(character)
+    end
+end
+
+-- Connect the death event to handle when the player dies
+local function onCharacterAddedDeath(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.Died:Connect(onCharacterDied)
+end
+
+-- Initial connection for when the script runs
+if player.Character then
+    onCharacterAdded(player.Character)
+    onCharacterAddedDeath(player.Character)
+end
+
+player.CharacterAdded:Connect(function(character)
+    onCharacterAdded(character)
+    onCharacterAddedDeath(character)
+end)
+
+
+
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local respawnOnce = true  -- This will ensure the player only respawns at the death position once.
+
+-- Function to handle player respawn at death position
+local function onCharacterDied()
+    local character = player.Character
+    if character then
+        -- Save the position where the player died
+        local deathPosition = character:FindFirstChild("HumanoidRootPart").Position
+
+        -- Wait for the character to respawn
+        player.CharacterAdded:Wait()
+        if respawnOnce then
+            -- Set the new character's position to the death position
+            player.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(deathPosition)
+            respawnOnce = false  -- Make sure this only happens once
+        end
+    end
+end
+
+-- Connect the death event to handle when the player dies
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.Died:Connect(onCharacterDied)
+end
+
+-- Initial connection for when the script runs
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+player.CharacterAdded:Connect(onCharacterAdded)
+
+
+
+
+local player = game.Players.LocalPlayer
+ 
+local playerGui = player.PlayerGui
+ 
+local hotbar = playerGui:FindFirstChild("Hotbar")
+ 
+local backpack = hotbar:FindFirstChild("Backpack")
+ 
+local hotbarFrame = backpack:FindFirstChild("Hotbar")
+ 
+local baseButton = hotbarFrame:FindFirstChild("1").Base
+ 
+local ToolName = baseButton.ToolName
+ 
+ 
+ToolName.Text = "《Heavenly Strike》"
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local playerGui = player.PlayerGui
+ 
+local hotbar = playerGui:FindFirstChild("Hotbar")
+ 
+local backpack = hotbar:FindFirstChild("Backpack")
+ 
+local hotbarFrame = backpack:FindFirstChild("Hotbar")
+ 
+local baseButton = hotbarFrame:FindFirstChild("2").Base
+ 
+local ToolName = baseButton.ToolName
+ 
+ 
+ToolName.Text = "《Heavy Barrage》"
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local playerGui = player.PlayerGui
+ 
+local hotbar = playerGui:FindFirstChild("Hotbar")
+ 
+local backpack = hotbar:FindFirstChild("Backpack")
+ 
+local hotbarFrame = backpack:FindFirstChild("Hotbar")
+ 
+local baseButton = hotbarFrame:FindFirstChild("3").Base
+ 
+local ToolName = baseButton.ToolName
+ 
+ 
+ToolName.Text = "《Close Combat》"
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local playerGui = player.PlayerGui
+ 
+local hotbar = playerGui:FindFirstChild("Hotbar")
+ 
+local backpack = hotbar:FindFirstChild("Backpack")
+ 
+local hotbarFrame = backpack:FindFirstChild("Hotbar")
+ 
+local baseButton = hotbarFrame:FindFirstChild("4").Base
+ 
+local ToolName = baseButton.ToolName
+ 
+ 
+ToolName.Text = "《Dive Bomb》"
+ 
+ 
+rs = game:GetService("Players")
+ 
+local player = Players.LocalPlayer
+ 
+local playerGui = player:WaitForChild("PlayerGui")
+ local Playe
+ 
+local function findGuiAndSetText()
+ 
+    local screenGui = playerGui:FindFirstChild("ScreenGui")
+ 
+    if screenGui then
+ 
+        local magicHealthFrame = screenGui:FindFirstChild("MagicHealth")
+ 
+        if magicHealthFrame then
+ 
+            local textLabel = magicHealthFrame:FindFirstChild("TextLabel")
+ 
+            if textLabel then
+ 
+                textLabel.Text = "Eight-Handled Sword Divergent Sila Divine General Mahoraga"
+ 
+            end
+ 
+        end
+ 
+    end
+ 
+end
+ 
+ 
+playerGui.DescendantAdded:Connect(findGuiAndSetText)
+ 
+findGuiAndSetText()
+ 
+--[[Animations]]
+ 
+--[[Move 1]]
+ 
+local animationId = 10468665991
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://18897538537"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0
+ 
+ 
+Anim:Play()
+
+Anim:AdjustSpeed(1)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1)
+
+delay(1.8, function()
+ 
+    Anim:Stop()
+
+end)
+
+
+    end
+ 
+end
+ 
+--[[END OF MOVE 1 ANIM]]
+ 
+--[[Move 2]]
+ 
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 10466974800
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://15090734317"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(1)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1)
+
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1)
+
+delay(1.8, function()
+ 
+    Anim:Stop()
+
+end)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF MOVE 2 ANIM]]
+ 
+--[[Move 3]]
+ 
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 10471336737
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://17292579443"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0.3
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(0)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1)
+ 
+ 
+delay(1.8, function()
+ 
+    Anim:Stop()
+ 
+end)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF MOVE 3 ANIM]]
+ 
+--[[Move 4]]
+ 
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 12510170988
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://16002726844"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(1.5)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1.5)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF MOVE 4 ANIM]]
+ 
+--[[Wall combo]]
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+local animationId = 15955393872
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://15943915877"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0.05
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(0)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF WALL COMBO ANIM]]
+ 
+--[[Ult Activation]]
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 12447707844
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://17120750680"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(0)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1)
+ 
+    end
+ 
+end
+--[[END OF ULT ACTIVATION ANIM]]
+ 
+--[[Dash]]
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 10479335397
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://13294790250"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(0)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(1.3)
+ 
+ 
+delay(1.8, function()
+ 
+    Anim:Stop()
+ 
+end)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF DASH ANIM]]
+ 
+--[[Uppercut]]
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 10503381238
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://14900168720"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 1.3
+ 
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(0)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(0.7)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF UPPERCUT ANIM]]
+ 
+--[[Downslam]]
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local animationId = 10470104242
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+ 
+local p = game.Players.LocalPlayer
+ 
+local Humanoid = p.Character:WaitForChild("Humanoid")
+ 
+ 
+for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+ 
+    animTrack:Stop()
+ 
+end
+ 
+ 
+local AnimAnim = Instance.new("Animation")
+ 
+AnimAnim.AnimationId = "rbxassetid://17120966975"
+ 
+local Anim = Humanoid:LoadAnimation(AnimAnim)
+ 
+ 
+local startTime = 0
+ 
+ 
+wait(0)
+ 
+Anim:Play()
+ 
+Anim:AdjustSpeed(2)
+ 
+Anim.TimePosition = startTime
+ 
+Anim:AdjustSpeed(2)
+ 
+ 
+    end
+ 
+end
+ 
+--[[END OF DOWNSLAM ANIM]]
+ 
+--[[Punch anims]]
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local Players = game:GetService("Players")
+ 
+local player = Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoid = character:WaitForChild("Humanoid")
+ 
+ 
+local animationIdsToStop = {
+ 
+    [17859015788] = true, --punch idk
+ 
+    [10469493270] = true, --punch1
+ 
+    [10469630950] = true, --punch2
+ 
+    [10469639222] = true, --punch3
+ 
+    [10469643643] = true, --punch4
+ 
+}
+ 
+ 
+local replacementAnimations = {
+ 
+    ["10469493270"] = "rbxassetid://17889458563", --punch1
+ 
+    ["10469630950"] = "rbxassetid://17889461810", --punch2
+ 
+    ["10469639222"] = "rbxassetid://17889471098", --punch3
+ 
+    ["10469643643"] = "rbxassetid://17889290569", --punch4
+ 
+    ["17859015788"] = "rbxassetid://12684185971", --punch idk
+ 
+    ["11365563255"] = "rbxassetid://14516273501" --punch idk
+ 
+}
+ 
+ 
+local queue = {}
+ 
+local isAnimating = false
+ 
+ 
+local function playReplacementAnimation(animationId)
+ 
+    if isAnimating then
+ 
+        table.insert(queue, animationId)
+ 
+        return
+ 
+    end
+ 
+   
+ 
+    isAnimating = true
+ 
+    local replacementAnimationId = replacementAnimations[tostring(animationId)]
+ 
+    if replacementAnimationId then
+ 
+        local AnimAnim = Instance.new("Animation")
+ 
+        AnimAnim.AnimationId = replacementAnimationId
+ 
+        local Anim = humanoid:LoadAnimation(AnimAnim)
+ 
+        Anim:Play()
+ 
+       
+ 
+        Anim.Stopped:Connect(function()
+ 
+            isAnimating = false
+ 
+            if #queue > 0 then
+ 
+                local nextAnimationId = table.remove(queue, 1)
+ 
+                playReplacementAnimation(nextAnimationId)
+ 
+            end
+ 
+        end)
+ 
+    else
+ 
+        isAnimating = false
+ 
+    end
+ 
+end
+ 
+ 
+local function stopSpecificAnimations()
+ 
+    for _, track in ipairs(humanoid:GetPlayingAnimationTracks()) do
+ 
+        local animationId = tonumber(track.Animation.AnimationId:match("%d+"))
+ 
+        if animationIdsToStop[animationId] then
+ 
+            track:Stop()
+ 
+        end
+ 
+    end
+ 
+end
+ 
+ 
+local function onAnimationPlayed(animationTrack)
+ 
+    local animationId = tonumber(animationTrack.Animation.AnimationId:match("%d+"))
+ 
+    if animationIdsToStop[animationId] then
+ 
+        stopSpecificAnimations()
+ 
+        animationTrack:Stop()
+ 
+       
+ 
+        local replacementAnimationId = replacementAnimations[tostring(animationId)]
+ 
+        if replacementAnimationId then
+ 
+            playReplacementAnimation(animationId)
+ 
+        end
+ 
+    end
+ 
+end
+ 
+ 
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+ 
+ 
+local player = game.Players.LocalPlayer
+ 
+local character = player.Character or player.CharacterAdded:Wait()
+ 
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+ 
+ 
+local function onBodyVelocityAdded(bodyVelocity)
+ 
+    if bodyVelocity:IsA("BodyVelocity") then
+ 
+        bodyVelocity.Velocity = Vector3.new(bodyVelocity.Velocity.X, 0, bodyVelocity.Velocity.Z)
+ 
+    end
+ 
+end
+ 
+ 
+character.DescendantAdded:Connect(onBodyVelocityAdded)
+ 
+ 
+for _, descendant in pairs(character:GetDescendants()) do
+ 
+    onBodyVelocityAdded(descendant)
+ 
+end
+ 
+ 
+player.CharacterAdded:Connect(function(newCharacter)
+ 
+    character = newCharacter
+ 
+    humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+ 
+    character.DescendantAdded:Connect(onBodyVelocityAdded)
+ 
+   
+ 
+    for _, descendant in pairs(character:GetDescendants()) do
+ 
+        onBodyVelocityAdded(descendant)
+ 
+    end
+ 
+end) 
