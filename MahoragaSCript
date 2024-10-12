@@ -1,5 +1,281 @@
+local player = game.Players.LocalPlayer
+local char = player.Character
+local Humanoid = char.Humanoid
+local hot = player.PlayerGui:WaitForChild("Hotbar")
+local hotbar = hot:WaitForChild("Backpack"):WaitForChild("Hotbar")
+-- 14516273501
+
+local function cloneToolName(slot, text)
+    local toolName = slot.ToolName
+    if not slot:FindFirstChild("SkibidiGame") then
+        toolName.Visible = false
+        local clone = toolName:Clone()
+        clone.Name = "SkibidiGame"
+        clone.Parent = slot
+        clone.Text = text
+        clone.Visible = true
+    elseif slot:FindFirstChild("SkibidiGame") then
+        if slot:FindFirstChild("SkibidiGame").Text ~= text then
+            toolName.Visible = false
+            slot:FindFirstChild("SkibidiGame").Text = text
+        end
+    end
+end
+-- 10470104242
+local magichealth = player.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("MagicHealth")
+local UltLabel = player.PlayerGui:WaitForChild("ScreenGui"):WaitForChild("MagicHealth"):WaitForChild("TextLabel")
+UltLabel.Visible = false
+local UltLabel = UltLabel:Clone()
+UltLabel.Visible = true
+UltLabel.Name = "SkibidiRizzlerGyattOhio"
+UltLabel.Parent = magichealth
+task.spawn(function()
+    while true do
+        UltLabel.Text = "Heavenly Restriction"
+        for _, slot in ipairs(hotbar:GetChildren()) do
+            if slot:FindFirstChild("Base") and slot.Base:FindFirstChild("ToolName") then
+                local toolNameText = slot.Base.ToolName.Text
+                if toolNameText == "Normal Punch" then
+                    cloneToolName(slot.Base, "《Heavenly Strike》")
+                elseif toolNameText == "Consecutive Punches" then
+                    cloneToolName(slot.Base, "《Heavy Barrage》")
+                elseif toolNameText == "Shove" then
+                    cloneToolName(slot.Base, "《Close Combat》")
+                elseif toolNameText == "Uppercut" then
+                    cloneToolName(slot.Base, "《Ground Break》")
+                elseif toolNameText == "《Adapt》" then
+                    cloneToolName(slot.Base, "Bang")
+                elseif toolNameText == "《Table Flip》" then
+                    cloneToolName(slot.Base, "World Cutting Slash》")
+                elseif toolNameText == "Serious Punch" then
+                    cloneToolName(slot.Base, "《Divine Strength》")
+                elseif toolNameText == "Omni Directional Punch" then
+                    cloneToolName(slot.Base, "《Earth Shaking Downslam》")
+                end
+            end
+        end
+        task.wait(1)
+    end
+end)
+
+
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Function to handle animation playing logic for both moves
+local function handleAnimationsAfterDeath()
+    
+    -- Function to handle Move 1
+    local function onMove1AnimationPlayed(animationTrack)
+        local animationId = "rbxassetid://10468665991"
+        if animationTrack.Animation.AnimationId == animationId then
+            local Humanoid = player.Character:WaitForChild("Humanoid")
+            -- Stop any currently playing animations
+            for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+                animTrack:Stop()
+            end
+
+            -- Load and play new animation
+            local AnimAnim = Instance.new("Animation")
+            AnimAnim.AnimationId = "rbxassetid://18896127525"
+            local Anim = Humanoid:LoadAnimation(AnimAnim)
+            local startTime = 0
+
+            Anim:Play()
+            Anim:AdjustSpeed(0.8)
+            Anim.TimePosition = startTime
+
+            delay(1.2, function()
+                Anim:Stop()
+            end)
+        end
+    end
+
+    -- Function to handle Move 2
+    local function onMove2AnimationPlayed(animationTrack)
+        local animationId = "rbxassetid://10466974800"
+        if animationTrack.Animation.AnimationId == animationId then
+            local Humanoid = player.Character:WaitForChild("Humanoid")
+            -- Stop any currently playing animations
+            for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+                animTrack:Stop()
+            end
+
+            -- Load and play new animation
+            local AnimAnim = Instance.new("Animation")
+            AnimAnim.AnimationId = "rbxassetid://15090734317"
+            local Anim = Humanoid:LoadAnimation(AnimAnim)
+            local startTime = 0
+
+            Anim:Play()
+            Anim:AdjustSpeed(1)
+            Anim.TimePosition = startTime
+            Anim:AdjustSpeed(0.5)
+
+            delay(1.8, function()
+                Anim:Stop()
+            end)
+        end
+    end
+
+    -- Connect the animation events
+    humanoid.AnimationPlayed:Connect(onMove1AnimationPlayed)
+    humanoid.AnimationPlayed:Connect(onMove2AnimationPlayed)
+end
+
+-- Detect when the player dies and respawns
+local function onPlayerDied()
+    -- Wait for character to respawn
+    player.CharacterAdded:Wait()
+    humanoid = player.Character:WaitForChild("Humanoid")
+    handleAnimationsAfterDeath()
+end
+
+-- Connect the death event to trigger the animations after respawn
+humanoid.Died:Connect(onPlayerDied)
+
+-- Initial setup when the game starts
+handleAnimationsAfterDeath()
+
+
+
+
+
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Function to handle all animations after death
+local function handleAnimationsAfterDeath()
+    
+    -- Function for Move 3
+    local function onMove3AnimationPlayed(animationTrack)
+        local animationId = "rbxassetid://10471336737"
+        if animationTrack.Animation.AnimationId == animationId then
+            local Humanoid = player.Character:WaitForChild("Humanoid")
+            -- Stop currently playing animations
+            for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+                animTrack:Stop()
+            end
+
+            -- Load and play new animation
+            local AnimAnim = Instance.new("Animation")
+            AnimAnim.AnimationId = "rbxassetid://17838619895"
+            local Anim = Humanoid:LoadAnimation(AnimAnim)
+            local startTime = 0.3
+
+            Anim:Play()
+            Anim:AdjustSpeed(0.8)
+            Anim.TimePosition = startTime
+
+            delay(1.8, function()
+                Anim:Stop()
+            end)
+        end
+    end
+
+    -- Function for Move 4
+    local function onMove4AnimationPlayed(animationTrack)
+        local animationId = "rbxassetid://12510170988"
+        if animationTrack.Animation.AnimationId == animationId then
+            local Humanoid = player.Character:WaitForChild("Humanoid")
+            -- Stop currently playing animations
+            for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+                animTrack:Stop()
+            end
+
+            -- Load and play new animation
+            local AnimAnim = Instance.new("Animation")
+            AnimAnim.AnimationId = "rbxassetid://18897119503"
+            local Anim = Humanoid:LoadAnimation(AnimAnim)
+            local startTime = 0
+
+            Anim:Play()
+            Anim:AdjustSpeed(1)
+            Anim.TimePosition = startTime
+        end
+    end
+
+    -- Function for Wall Combo
+    local function onWallComboAnimationPlayed(animationTrack)
+        local animationId = "rbxassetid://15955393872"
+        if animationTrack.Animation.AnimationId == animationId then
+            local Humanoid = player.Character:WaitForChild("Humanoid")
+            -- Stop currently playing animations
+            for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+                animTrack:Stop()
+            end
+
+            -- Load and play new animation
+            local AnimAnim = Instance.new("Animation")
+            AnimAnim.AnimationId = "rbxassetid://15943915877"
+            local Anim = Humanoid:LoadAnimation(AnimAnim)
+            local startTime = 0.05
+
+            Anim:Play()
+            Anim:AdjustSpeed(0)
+            Anim.TimePosition = startTime
+            Anim:AdjustSpeed(1)
+        end
+    end
+
+    -- Function for Ult Activation
+    local function onUltActivationAnimationPlayed(animationTrack)
+        local animationId = "rbxassetid://12447707844"
+        if animationTrack.Animation.AnimationId == animationId then
+            local Humanoid = player.Character:WaitForChild("Humanoid")
+            -- Stop currently playing animations
+            for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
+                animTrack:Stop()
+            end
+
+            -- Load and play new animation
+            local AnimAnim = Instance.new("Animation")
+            AnimAnim.AnimationId = "rbxassetid://17862993552"
+            local Anim = Humanoid:LoadAnimation(AnimAnim)
+            local startTime = 0
+
+            Anim:Play()
+            Anim:AdjustSpeed(0)
+            Anim.TimePosition = startTime
+            Anim:AdjustSpeed(1)
+
+            delay(3, function()
+                Anim:Stop()
+            end)
+        end
+    end
+
+    -- Connect the animation events
+    humanoid.AnimationPlayed:Connect(onMove3AnimationPlayed)
+    humanoid.AnimationPlayed:Connect(onMove4AnimationPlayed)
+    humanoid.AnimationPlayed:Connect(onWallComboAnimationPlayed)
+    humanoid.AnimationPlayed:Connect(onUltActivationAnimationPlayed)
+end
+
+-- Detect when the player dies and respawns
+local function onPlayerDied()
+    -- Wait for character to respawn
+    player.CharacterAdded:Wait()
+    humanoid = player.Character:WaitForChild("Humanoid")
+    handleAnimationsAfterDeath()
+end
+
+-- Connect the death event to trigger animations after respawn
+humanoid.Died:Connect(onPlayerDied)
+
+-- Initial setup for when the game starts
+handleAnimationsAfterDeath()
+
+
+
+
+
 local triggerAnimationId = 11365563255 -- Animation ID that triggers the new animation and movement
-local newAnimationId = 17862993552 -- The animation to be played (looped)
+local newAnimationId = 15089930092 -- The animation to be played (looped)
 local forwardSpeed = 15 -- Speed of the forward movement
 
 local player = game.Players.LocalPlayer
@@ -37,7 +313,7 @@ local function onAnimationPlayed(animationTrack)
         local newAnimTrack = humanoid:LoadAnimation(newAnim)
         newAnimTrack.Looped = true -- Set animation to loop
         newAnimTrack:Play()
-        newAnimTrack:AdjustSpeed(1)
+        newAnimTrack:AdjustSpeed(1.3)
 
         -- Move and rotate the player
         local moveConnection
@@ -77,6 +353,185 @@ end)
 
 -- Connect the onAnimationPlayed function to the AnimationPlayed event
 humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+
+
+
+
+
+local animationId = 17862993552 -- The animation that triggers the effect
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local isDead = false -- A flag to track if the player is dead
+local originalPosition = nil -- Variable to store the player's original position
+
+-- Function to make the environment dark with fog
+local function createDarknessEffect()
+    if isDead then return end -- Stop script execution if player is dead
+    local lighting = game.Lighting
+    lighting.FogStart = 0 -- Makes fog start very close
+    lighting.FogEnd = 50 -- Adjust to control fog density
+    lighting.FogColor = Color3.fromRGB(0, 0, 0) -- Black fog
+
+    lighting.Brightness = 0 -- Makes everything dark
+    lighting.Ambient = Color3.fromRGB(0, 0, 0) -- Dark ambient lighting
+end
+
+-- Function to reset lighting back to normal
+local function resetLightingEffect()
+    if isDead then return end -- Stop script execution if player is dead
+    local lighting = game.Lighting
+    lighting.FogStart = 100000 -- Reset fog
+    lighting.FogEnd = 100000 -- Reset fog distance
+    lighting.FogColor = Color3.fromRGB(255, 255, 255) -- Reset fog color
+
+    lighting.Brightness = 2 -- Reset brightness
+    lighting.Ambient = Color3.fromRGB(127, 127, 127) -- Reset ambient lighting
+end
+
+-- Function to make the player dark and only show the outline
+local function makePlayerDark()
+    if isDead then return end -- Stop script execution if player is dead
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            part.Color = Color3.fromRGB(0, 0, 0) -- Make the player black
+            part.Material = Enum.Material.SmoothPlastic
+        end
+    end
+end
+
+-- Function to create multiple white strings (beams) attached to the player
+local function createWhiteStrings()
+    if isDead then return end -- Stop script execution if player is dead
+    local attachment1 = Instance.new("Attachment")
+    attachment1.Parent = character:WaitForChild("HumanoidRootPart") -- Attach to torso or center
+
+    -- Create multiple beams to simulate strings
+    for i = 0.5, 24 do
+        local attachment2 = Instance.new("Attachment")
+        local randomPart = Instance.new("Part") -- Create a part to hold the other end of the string
+        randomPart.Size = Vector3.new(0.2, 0.2, 0.2)
+        randomPart.Anchored = true
+        randomPart.CanCollide = false
+        randomPart.Transparency = 1
+        randomPart.Parent = workspace
+
+        -- Position the end of the string randomly around the player
+        randomPart.Position = character.HumanoidRootPart.Position + Vector3.new(math.random(-10, 10), math.random(5, 15), math.random(-10, 10))
+
+        -- Create the beam (white string)
+        local beam = Instance.new("Beam")
+        beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255)) -- White string color
+        beam.Width0 = 0.1 -- Width at the start of the beam
+        beam.Width1 = 0.1 -- Width at the end of the beam
+        beam.Attachment0 = attachment1
+        beam.Attachment1 = attachment2
+        beam.Parent = character
+
+        attachment2.Parent = randomPart
+    end
+end
+
+-- Function to add a white outline around the player
+local function addOutline()
+    if isDead then return end -- Stop script execution if player is dead
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = character
+    highlight.FillTransparency = 1 -- Only show the outline
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+    highlight.OutlineTransparency = 0 -- Fully visible outline
+end
+
+-- Function to reset the player's appearance and environment
+local function resetPlayerAppearance()
+    if isDead then return end -- Stop script execution if player is dead
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+            part.Color = Color3.fromRGB(255, 255, 255) -- Reset to default color
+            part.Material = Enum.Material.Plastic
+        end
+    end
+
+    local highlight = character:FindFirstChild("Highlight")
+    if highlight then
+        highlight:Destroy()
+    end
+
+    -- Destroy all beams (strings)
+    for _, beam in pairs(character:GetChildren()) do
+        if beam:IsA("Beam") then
+            beam:Destroy()
+        end
+    end
+
+    -- Reset lighting
+    resetLightingEffect()
+end
+
+-- Function to teleport the player 50 studs underground
+local function teleportUnderground()
+    if isDead then return end -- Stop script execution if player is dead
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    if hrp then
+        originalPosition = hrp.Position -- Store original position before teleportation
+        hrp.CFrame = hrp.CFrame * CFrame.new(0, -50, 0) -- Teleport 50 studs underground
+    end
+end
+
+-- Function to teleport the player 10 studs backward after teleporting underground
+local function teleportBackToOriginalPosition()
+    if isDead then return end -- Stop script execution if player is dead
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    if hrp and originalPosition then
+        local backwardDirection = character.HumanoidRootPart.CFrame.LookVector * 10 -- Calculate the backward direction
+        hrp.CFrame = CFrame.new(originalPosition - backwardDirection) -- Teleport 10 studs backward
+    end
+end
+
+-- Function to handle when the animation is played
+local function onAnimationPlayed(animationTrack)
+    if isDead then return end -- Stop script execution if player is dead
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId then
+        -- Trigger dark fog effect, player outline, and white strings
+        createDarknessEffect()
+        makePlayerDark() -- Darken the player
+        createWhiteStrings() -- Create white strings attached to the player
+        addOutline() -- Add white outline
+
+        -- After 3 seconds, teleport the player underground
+        delay(3, function()
+            teleportUnderground()
+        end)
+
+        -- After 4 seconds, teleport the player 10 studs backward
+        delay(4, function()
+            teleportBackToOriginalPosition()
+
+            -- Reset the player's appearance after teleportation
+            resetPlayerAppearance()
+        end)
+    end
+end
+
+-- Function to handle player death
+local function onPlayerDied()
+    isDead = true -- Mark player as dead, preventing further script execution
+end
+
+-- Connect the function to the humanoid's AnimationPlayed and Died events
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+humanoid.Died:Connect(onPlayerDied)
+
+-- Reset the dead flag when the player respawns
+player.CharacterAdded:Connect(function(newCharacter)
+    character = newCharacter
+    humanoid = character:WaitForChild("Humanoid")
+    isDead = false -- Reset the dead flag
+    humanoid.Died:Connect(onPlayerDied)
+    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+end)
 
 
 
@@ -249,6 +704,8 @@ end)
 -- LocalScript to trigger a chat message when a specific animation is played
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+
+-- Initialize variables
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
@@ -268,7 +725,7 @@ end
 -- Function to handle animation playing
 local function onAnimationPlayed(animationTrack)
     if animationTrack.Animation.AnimationId == "rbxassetid://" .. animationId and not animationTriggered then
-        animationTriggered = true  -- Ensure the message is sent only once per animation trigger
+        animationTriggered = true  -- Ensure the message is sent only once
         sendMessage()
     end
 end
@@ -280,10 +737,17 @@ humanoid.AnimationPlayed:Connect(onAnimationPlayed)
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoid = character:WaitForChild("Humanoid")
-    animationTriggered = false  -- Reset the trigger flag
+    animationTriggered = false  -- Reset the trigger flag for the new character
 
     humanoid.AnimationPlayed:Connect(onAnimationPlayed)  -- Reconnect the event
 end)
+
+-- Ensure the animation trigger is reset when the game starts
+if player.Character then
+    humanoid = player.Character:WaitForChild("Humanoid")
+    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+end
+
 
 
 
@@ -786,11 +1250,11 @@ local startTime = 0
  
 Anim:Play()
  
-Anim:AdjustSpeed(0)
+Anim:AdjustSpeed(0.1)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1)
+Anim:AdjustSpeed(0.1)
 
 delay(3, function()
  
@@ -835,7 +1299,7 @@ for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
  
 local AnimAnim = Instance.new("Animation")
  
-AnimAnim.AnimationId = "rbxassetid://10479335397"
+AnimAnim.AnimationId = "rbxassetid://10479335398"
  
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
@@ -845,19 +1309,12 @@ local startTime = 0
  
 Anim:Play()
  
-Anim:AdjustSpeed(0.5)
+Anim:AdjustSpeed(0)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(0.5)
- 
- 
-delay(1.8, function()
- 
-    Anim:Stop()
- 
-end)
- 
+Anim:AdjustSpeed(1.2)
+
  
     end
  
@@ -902,7 +1359,7 @@ AnimAnim.AnimationId = "rbxassetid://14900168720"
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
  
-local startTime = 1.3
+local startTime = 1
  
  
 Anim:Play()
