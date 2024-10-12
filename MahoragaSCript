@@ -1,10 +1,259 @@
+local triggerAnimationId = 11365563255 -- Animation ID that triggers the new animation and movement
+local newAnimationId = 17862993552 -- The animation to be played (looped)
+local forwardSpeed = 15 -- Speed of the forward movement
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart") -- Root part used for moving the player
+local userInputService = game:GetService("UserInputService")
+local mouse = player:GetMouse() -- Get the player's mouse
+
+local isMovingForward = false -- To track forward movement
+
+-- Function to rotate the player towards the mouse position
+local function rotateTowardsMouse()
+    local mousePosition = mouse.Hit.p -- Get the 3D position of the mouse in the world
+    local rootPosition = rootPart.Position -- Get the current position of the player's root part
+
+    -- Calculate the direction vector from the player to the mouse position (ignore Y axis to stay level)
+    local direction = Vector3.new(mousePosition.X - rootPosition.X, 0, mousePosition.Z - rootPosition.Z).unit
+
+    -- Set the player's rotation to face the mouse direction
+    rootPart.CFrame = CFrame.new(rootPosition, rootPosition + direction)
+end
+
+-- Function to handle the animation being played
+local function onAnimationPlayed(animationTrack)
+    if animationTrack.Animation.AnimationId == "rbxassetid://" .. triggerAnimationId then
+        -- Stop any playing animations first
+        for _, animTrack in pairs(humanoid:GetPlayingAnimationTracks()) do
+            animTrack:Stop()
+        end
+        
+        -- Create and load the new animation (looped)
+        local newAnim = Instance.new("Animation")
+        newAnim.AnimationId = "rbxassetid://" .. newAnimationId
+        local newAnimTrack = humanoid:LoadAnimation(newAnim)
+        newAnimTrack.Looped = true -- Set animation to loop
+        newAnimTrack:Play()
+        newAnimTrack:AdjustSpeed(1)
+
+        -- Move and rotate the player
+        local moveConnection
+        moveConnection = game:GetService("RunService").RenderStepped:Connect(function(deltaTime)
+            -- Rotate towards the mouse
+            rotateTowardsMouse()
+
+            -- Move the player forward in the direction they are facing (LookVector)
+            if isMovingForward then
+                local lookDirection = rootPart.CFrame.LookVector -- Get the forward direction of the player
+                rootPart.CFrame = rootPart.CFrame + (lookDirection * forwardSpeed * deltaTime)
+            end
+        end)
+
+        -- Stop the movement if the animation stops
+        newAnimTrack.Stopped:Connect(function()
+            if moveConnection then
+                moveConnection:Disconnect() -- Stop moving when the animation is stopped
+            end
+        end)
+    end
+end
+
+-- Toggle forward movement on key press (W or Up arrow)
+userInputService.InputBegan:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.Up then
+        isMovingForward = true
+    end
+end)
+
+-- Stop forward movement when the key is released
+userInputService.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.Up then
+        isMovingForward = false
+    end
+end)
+
+-- Connect the onAnimationPlayed function to the AnimationPlayed event
+humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+
+
+
+
+
+-- Settings for accessory equip time and accessory IDs
+getgenv().Time = 1.5
+
+getgenv().Head = {
+    15483986158,  -- Accessory IDs for the head
+    15483978392,
+    15375507153,
+}
+
+getgenv().Torso = {
+    15483986158,  -- Accessory IDs for the torso
+    15765107116,
+}
+
+-- Animation ID to trigger accessory change
+local animationId = "rbxassetid://17862993552"
+
+-- Get the player object
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Function to weld parts together
+local function weldParts(part0, part1, c0, c1)
+    local weld = Instance.new("Weld")
+    weld.Part0 = part0
+    weld.Part1 = part1
+    weld.C0 = c0
+    weld.C1 = c1
+    weld.Parent = part0
+    return weld
+end
+
+-- Function to find an attachment by name in a part
+local function findAttachment(rootPart, name)
+    for _, descendant in pairs(rootPart:GetDescendants()) do
+        if descendant:IsA("Attachment") and descendant.Name == name then
+            return descendant
+        end
+    end
+end
+
+-- Function to add an accessory to the character
+local function addAccessoryToCharacter(accessoryId, parentPart)
+    local success, accessory = pcall(function()
+        return game:GetObjects("rbxassetid://" .. tostring(accessoryId))[1]
+    end)
+
+    -- Check if the accessory loaded properly
+    if not success or not accessory then
+        warn("Accessory with ID " .. tostring(accessoryId) .. " failed to load.")
+        return
+    end
+
+    -- Parent the accessory to Workspace first
+    accessory.Parent = game.Workspace
+
+    local handle = accessory:FindFirstChild("Handle")
+    if handle then
+        handle.CanCollide = false
+        local attachment = handle:FindFirstChildOfClass("Attachment")
+        if attachment then
+            local parentAttachment = findAttachment(parentPart, attachment.Name)
+            if parentAttachment then
+                weldParts(parentPart, handle, parentAttachment.CFrame, attachment.CFrame)
+            end
+        else
+            -- If there's no attachment, weld it directly to the part
+            local parent = player.Character:FindFirstChild(parentPart.Name)
+            if parent then
+                local attachmentPoint = accessory.AttachmentPoint
+                weldParts(parent, handle, CFrame.new(0, 0.5, 0), attachmentPoint.CFrame)
+            end
+        end
+    end
+
+    -- Parent the accessory to the character
+    accessory.Parent = player.Character
+end
+
+-- Function to remove existing accessories from the character
+local function removeExistingAccessories(character)
+    for _, accessory in ipairs(character:GetChildren()) do
+        if accessory:IsA("Accessory") then
+            accessory:Destroy()  -- Remove the accessory
+        end
+    end
+end
+
+-- Function to set the character's skin color to white
+local function setSkinColor(character)
+    local bodyColors = character:FindFirstChildOfClass("BodyColors")
+    if bodyColors then
+        bodyColors.HeadColor = BrickColor.White()
+        bodyColors.TorsoColor = BrickColor.White()
+        bodyColors.LeftArmColor = BrickColor.White()
+        bodyColors.RightArmColor = BrickColor.White()
+        bodyColors.LeftLegColor = BrickColor.White()
+        bodyColors.RightLegColor = BrickColor.White()
+    end
+end
+
+-- Function to apply changes when the correct animation is played
+local function applyNewAvatar(character)
+    wait(getgenv().Time)
+
+    removeExistingAccessories(character)  -- Remove any existing accessories
+    setSkinColor(character)  -- Set the character's skin color to white
+
+    -- Add head accessories
+    for _, accessoryId in ipairs(getgenv().Head) do
+        addAccessoryToCharacter(accessoryId, character:FindFirstChild("Head"))
+    end
+
+    -- Add torso accessories
+    local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+    if torso then
+        for _, accessoryId in ipairs(getgenv().Torso) do
+            addAccessoryToCharacter(accessoryId, torso)
+        end
+    end
+end
+
+-- Function to handle when an animation is played
+local function onAnimationPlayed(animationTrack)
+    -- Check if the animation matches the one we want
+    if animationTrack.Animation.AnimationId == animationId then
+        -- Apply the new avatar when the correct animation plays
+        applyNewAvatar(player.Character)
+    end
+end
+
+-- Function to handle player death
+local function onCharacterDied()
+    local character = player.Character
+    if character then
+        removeExistingAccessories(character)  -- Remove all accessories on death
+    end
+end
+
+-- Function to handle character respawn
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    
+    -- Monitor animations played on the character's humanoid
+    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
+
+    -- Connect death event
+    humanoid.Died:Connect(onCharacterDied)
+end
+
+-- Initial connection for when the script runs
+if player.Character then
+    onCharacterAdded(player.Character)
+end
+
+-- Listen for when the player's character respawns
+player.CharacterAdded:Connect(function(character)
+    onCharacterAdded(character)
+end)
+
+
+
+
+
+-- LocalScript to trigger a chat message when a specific animation is played
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
 -- Animation ID to listen for
-local animationId = 17120750680
+local animationId = 17862993552
 local animationTriggered = false
 
 -- Reference to the chat system
@@ -38,347 +287,6 @@ end)
 
 
 
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local humanoid = player.Character and player.Character:WaitForChild("Humanoid")
-
--- Animation IDs
-local triggerAnimationId = 7815618175  -- Animation to be triggered
-local replaceAnimationId = 15237948811  -- Animation to play instead
-
--- Create Animation objects
-local triggerAnimation = Instance.new("Animation")
-triggerAnimation.AnimationId = "rbxassetid://" .. tostring(triggerAnimationId)
-
-local replaceAnimation = Instance.new("Animation")
-replaceAnimation.AnimationId = "rbxassetid://" .. tostring(replaceAnimationId)
-
--- Create AnimationTracks for the humanoid
-local triggerTrack = humanoid:LoadAnimation(triggerAnimation)
-local replaceTrack = humanoid:LoadAnimation(replaceAnimation)
-
--- Function to handle playing and stopping animations based on movement
-local function onAnimationPlayed(animationTrack)
-    if animationTrack == triggerTrack then
-        -- Stop the trigger animation
-        triggerTrack:Stop()
-    end
-end
-
--- Function to play the replacement animation when moving forward
-local function onUpdate()
-    if humanoid.MoveDirection.Magnitude > 0 then
-        -- Check if the player is moving forward
-        local direction = humanoid.MoveDirection.Unit
-
-        -- Check if the player is facing forward (Z axis)
-        if direction.Z > 0 then
-            -- Play the replacement animation if not already playing
-            if not replaceTrack.IsPlaying then
-                replaceTrack:Play()
-            end
-        else
-            -- Stop the replacement animation if the player is not moving forward
-            if replaceTrack.IsPlaying then
-                replaceTrack:Stop()
-            end
-        end
-    else
-        -- Stop the replacement animation if the player is not moving
-        if replaceTrack.IsPlaying then
-            replaceTrack:Stop()
-        end
-    end
-end
-
--- Connect to the AnimationPlayed event
-humanoid.AnimationPlayed:Connect(onAnimationPlayed)
-
--- Ensure the script can react to the character being added
-player.CharacterAdded:Connect(function(character)
-    humanoid = character:WaitForChild("Humanoid")
-    
-    -- Reload the animation tracks when a new character is added
-    triggerTrack = humanoid:LoadAnimation(triggerAnimation)
-    replaceTrack = humanoid:LoadAnimation(replaceAnimation)
-
-    -- Reconnect the AnimationPlayed event
-    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
-end)
-
--- Run the onUpdate function every frame
-game:GetService("RunService").Heartbeat:Connect(onUpdate)
-
-
-
-
-local Players = game:GetService("Players")
-local UserInputService = game:GetService("UserInputService")
-
-local player = Players.LocalPlayer
-local humanoid = player.Character and player.Character:WaitForChild("Humanoid")
-
--- Animation ID
-local animationId = 13736115009
-
--- Create Animation object
-local animation = Instance.new("Animation")
-animation.AnimationId = "rbxassetid://" .. tostring(animationId)
-
--- Load the animation into the humanoid
-local animationTrack = humanoid:LoadAnimation(animation)
-
--- Track whether the animation is playing or not
-local isPlaying = false
-
--- Function to toggle the animation on and off
-local function toggleAnimation()
-    if isPlaying then
-        -- Stop the animation if it's already playing
-        animationTrack:Stop()
-        isPlaying = false
-    else
-        -- Play the animation if it's not playing
-        animationTrack:Play()
-        isPlaying = true
-    end
-end
-
--- Detect when the X key is pressed
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    -- Make sure the input is the "X" key and the user isn't typing in a chat or textbox
-    if input.KeyCode == Enum.KeyCode.X and not gameProcessed then
-        toggleAnimation()
-    end
-end)
-
--- If the character changes (respawn, etc.), update the humanoid reference
-player.CharacterAdded:Connect(function(character)
-    humanoid = character:WaitForChild("Humanoid")
-    animationTrack = humanoid:LoadAnimation(animation)
-end)
-
-
-
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-local humanoid = player.Character and player.Character:WaitForChild("Humanoid")
-
--- Animation IDs
-local triggerAnimationId = 7815618175  -- Animation to be triggered
-local replaceAnimationId = 15237948811  -- Animation to play instead
-
--- Create Animation objects
-local triggerAnimation = Instance.new("Animation")
-triggerAnimation.AnimationId = "rbxassetid://" .. tostring(triggerAnimationId)
-
-local replaceAnimation = Instance.new("Animation")
-replaceAnimation.AnimationId = "rbxassetid://" .. tostring(replaceAnimationId)
-
--- Create AnimationTracks for the humanoid
-local triggerTrack = humanoid:LoadAnimation(triggerAnimation)
-local replaceTrack = humanoid:LoadAnimation(replaceAnimation)
-
--- Function to handle playing and stopping animations
-local function onAnimationPlayed(animationTrack)
-    if animationTrack == triggerTrack then
-        -- Stop the trigger animation
-        triggerTrack:Stop()
-
-        -- Play the replacement animation
-        replaceTrack:Play()
-    end
-end
-
--- Connect to the AnimationPlayed event
-humanoid.AnimationPlayed:Connect(onAnimationPlayed)
-
--- Ensure the script can react to the character being added
-player.CharacterAdded:Connect(function(character)
-    humanoid = character:WaitForChild("Humanoid")
-    
-    -- Reload the animation tracks when a new character is added
-    triggerTrack = humanoid:LoadAnimation(triggerAnimation)
-    replaceTrack = humanoid:LoadAnimation(replaceAnimation)
-
-    -- Reconnect the AnimationPlayed event
-    humanoid.AnimationPlayed:Connect(onAnimationPlayed)
-end)
-
-
-
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
--- Store original avatar state
-local originalAccessories = {}
-local originalBodyColors = nil
-local avatarChanged = false  -- Flag to check if the avatar has been changed
-
--- Accessory IDs
-local HeadAccessories = {
-    15483986158,  -- Example accessory IDs for the head
-    15483978392,
-    15375507153,
-}
-
-local TorsoAccessories = {
-    15483986158,  -- Example accessory IDs for the torso
-    15765107116,
-}
-
--- Function to weld parts
-local function weldParts(part0, part1, c0, c1)
-    local weld = Instance.new("Weld")
-    weld.Part0 = part0
-    weld.Part1 = part1
-    weld.C0 = c0
-    weld.C1 = c1
-    weld.Parent = part0
-    return weld
-end
-
--- Function to find an attachment by name
-local function findAttachment(rootPart, name)
-    for _, descendant in pairs(rootPart:GetDescendants()) do
-        if descendant:IsA("Attachment") and descendant.Name == name then
-            return descendant
-        end
-    end
-end
-
--- Function to add an accessory to the character
-local function addAccessoryToCharacter(accessoryId, parentPart)
-    local accessory = game:GetObjects("rbxassetid://" .. tostring(accessoryId))[1]
-    local character = player.Character
-
-    -- Parent the accessory to Workspace first
-    accessory.Parent = game.Workspace
-
-    local handle = accessory:FindFirstChild("Handle")
-    if handle then
-        handle.CanCollide = false
-        local attachment = handle:FindFirstChildOfClass("Attachment")
-        if attachment then
-            local parentAttachment = findAttachment(parentPart, attachment.Name)
-            if parentAttachment then
-                weldParts(parentPart, handle, parentAttachment.CFrame, attachment.CFrame)
-            end
-        else
-            local parent = character:FindFirstChild(parentPart.Name)
-            if parent then
-                local attachmentPoint = accessory.AttachmentPoint
-                weldParts(parent, handle, CFrame.new(0, 0.5, 0), attachmentPoint.CFrame)
-            end
-        end
-    end
-
-    -- Parent the accessory to the character
-    accessory.Parent = character
-end
-
--- Function to remove existing accessories
-local function removeExistingAccessories(character)
-    for _, accessory in ipairs(character:GetChildren()) do
-        if accessory:IsA("Accessory") then
-            accessory:Destroy()  -- Remove existing accessories
-        end
-    end
-end
-
--- Function to set the skin color to white
-local function setSkinColor(character)
-    local bodyColors = character:FindFirstChildOfClass("BodyColors")
-    if bodyColors then
-        bodyColors.HeadColor = BrickColor.White()
-        bodyColors.TorsoColor = BrickColor.White()
-        bodyColors.LeftArmColor = BrickColor.White()
-        bodyColors.RightArmColor = BrickColor.White()
-        bodyColors.LeftLegColor = BrickColor.White()
-        bodyColors.RightLegColor = BrickColor.White()
-    end
-end
-
--- Function to store the original avatar
-local function storeOriginalAvatar(character)
-    originalAccessories = {}
-    local bodyColors = character:FindFirstChildOfClass("BodyColors")
-    originalBodyColors = bodyColors and bodyColors:Clone()
-
-    for _, part in ipairs(character:GetChildren()) do
-        if part:IsA("Accessory") then
-            table.insert(originalAccessories, part:Clone())  -- Store a clone of the original accessories
-        end
-    end
-end
-
--- Function to restore the original avatar
-local function restoreOriginalAvatar(character)
-    -- Restore accessories
-    for _, accessory in ipairs(originalAccessories) do
-        accessory.Parent = character  -- Parent the original accessories back to the character
-    end
-
-    -- Restore body colors if they exist
-    if originalBodyColors then
-        local bodyColors = character:FindFirstChildOfClass("BodyColors")
-        if bodyColors then
-            bodyColors:Destroy()  -- Remove the current body colors
-        end
-        originalBodyColors.Parent = character  -- Parent the original body colors back to the character
-    end
-end
-
--- Function to handle character respawn
-local function onCharacterAdded(character)
-    if avatarChanged then  -- If avatar has been changed, restore original on respawn
-        restoreOriginalAvatar(character)  -- Restore the original avatar on respawn
-        avatarChanged = false  -- Reset the flag to allow for avatar change on next death
-    else  -- Change avatar on first death
-        removeExistingAccessories(character)  -- Remove existing accessories
-        setSkinColor(character)  -- Set skin color to white
-        storeOriginalAvatar(character)  -- Store the original avatar
-
-        for _, accessoryId in ipairs(HeadAccessories) do
-            addAccessoryToCharacter(accessoryId, character.Head)
-        end
-
-        for _, accessoryId in ipairs(TorsoAccessories) do
-            addAccessoryToCharacter(accessoryId, character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso"))
-        end
-
-        avatarChanged = true  -- Set flag to true after changing avatar
-    end
-end
-
--- Function to handle player death
-local function onCharacterDied()
-    local character = player.Character
-    if character then
-        -- Remove all accessories when the character dies
-        removeExistingAccessories(character)
-    end
-end
-
--- Connect the death event to handle when the player dies
-local function onCharacterAddedDeath(character)
-    local humanoid = character:WaitForChild("Humanoid")
-    humanoid.Died:Connect(onCharacterDied)
-end
-
--- Initial connection for when the script runs
-if player.Character then
-    onCharacterAdded(player.Character)
-    onCharacterAddedDeath(player.Character)
-end
-
-player.CharacterAdded:Connect(function(character)
-    onCharacterAdded(character)
-    onCharacterAddedDeath(character)
-end)
 
 
 
@@ -488,7 +396,7 @@ local baseButton = hotbarFrame:FindFirstChild("4").Base
 local ToolName = baseButton.ToolName
  
  
-ToolName.Text = "《Dive Bomb》"
+ToolName.Text = "《Ground Break》"
  
  
 rs = game:GetService("Players")
@@ -560,7 +468,7 @@ end
  
 local AnimAnim = Instance.new("Animation")
  
-AnimAnim.AnimationId = "rbxassetid://18897538537"
+AnimAnim.AnimationId = "rbxassetid://18896127525"
  
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
@@ -570,13 +478,13 @@ local startTime = 0
  
 Anim:Play()
 
-Anim:AdjustSpeed(1)
+Anim:AdjustSpeed(0.8)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1)
+Anim:AdjustSpeed(0.8)
 
-delay(1.8, function()
+delay(1.2, function()
  
     Anim:Stop()
 
@@ -638,12 +546,12 @@ Anim:AdjustSpeed(1)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1)
+Anim:AdjustSpeed(0.5)
 
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1)
+Anim:AdjustSpeed(0.5)
 
 delay(1.8, function()
  
@@ -693,7 +601,7 @@ end
  
 local AnimAnim = Instance.new("Animation")
  
-AnimAnim.AnimationId = "rbxassetid://17292579443"
+AnimAnim.AnimationId = "rbxassetid://17838619895"
  
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
@@ -703,11 +611,11 @@ local startTime = 0.3
  
 Anim:Play()
  
-Anim:AdjustSpeed(0)
+Anim:AdjustSpeed(0.8)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1)
+Anim:AdjustSpeed(0.8)
  
  
 delay(1.8, function()
@@ -757,7 +665,7 @@ end
  
 local AnimAnim = Instance.new("Animation")
  
-AnimAnim.AnimationId = "rbxassetid://16002726844"
+AnimAnim.AnimationId = "rbxassetid://18897119503"
  
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
@@ -767,11 +675,11 @@ local startTime = 0
  
 Anim:Play()
  
-Anim:AdjustSpeed(1.5)
+Anim:AdjustSpeed(1)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1.5)
+Anim:AdjustSpeed(1)
  
  
     end
@@ -868,7 +776,7 @@ end
  
 local AnimAnim = Instance.new("Animation")
  
-AnimAnim.AnimationId = "rbxassetid://17120750680"
+AnimAnim.AnimationId = "rbxassetid://17862993552"
  
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
@@ -883,6 +791,12 @@ Anim:AdjustSpeed(0)
 Anim.TimePosition = startTime
  
 Anim:AdjustSpeed(1)
+
+delay(3, function()
+ 
+    Anim:Stop()
+ 
+end)
  
     end
  
@@ -917,12 +831,11 @@ for _, animTrack in pairs(Humanoid:GetPlayingAnimationTracks()) do
  
     animTrack:Stop()
  
-end
- 
+    end 
  
 local AnimAnim = Instance.new("Animation")
  
-AnimAnim.AnimationId = "rbxassetid://13294790250"
+AnimAnim.AnimationId = "rbxassetid://10479335397"
  
 local Anim = Humanoid:LoadAnimation(AnimAnim)
  
@@ -932,11 +845,11 @@ local startTime = 0
  
 Anim:Play()
  
-Anim:AdjustSpeed(0)
+Anim:AdjustSpeed(0.5)
  
 Anim.TimePosition = startTime
  
-Anim:AdjustSpeed(1.3)
+Anim:AdjustSpeed(0.5)
  
  
 delay(1.8, function()
